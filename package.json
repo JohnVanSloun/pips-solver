@@ -1,0 +1,26 @@
+{
+  "name": "pips-solver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohnVanSloun/pips-solver.git"
+  },
+  "keywords": [],
+  "author": "John Van Sloun",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/JohnVanSloun/pips-solver/issues"
+  },
+  "homepage": "https://github.com/JohnVanSloun/pips-solver#readme",
+  "devDependencies": {
+    "cypress": "^15.9.0",
+    "typescript": "^5.9.3"
+  }
+}
