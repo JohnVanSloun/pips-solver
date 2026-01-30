@@ -9,7 +9,6 @@ function getCellColor(elem: JQuery<HTMLElement>): string {
     const COLOR_PATTERNS = [/purple/, /pink/, /orange/, /teal/, /blue/, /green/];
     const COLORS = ['PURPLE', 'PINK', 'ORANGE', 'TEAL', "BLUE", "GREEN"]; 
 
-
     const child = elem.children()[0];
     const classes = [...child.classList];
     
@@ -33,7 +32,7 @@ function getPipsData(mode: string) {
     cy.get(`[data-testid="${mode.toUpperCase()}-toggle-button"]`).click();
     cy.get('[data-testid="play-button"]').click();
 
-     // Using board container element styling to obtain dimensions
+     // Determines the dimensions of the game board
     cy.get('[class^="Board-module_boardContainer_"]').then($el => {
         const style = window.getComputedStyle($el[0]);
         const rows = style.getPropertyValue('--rows');
@@ -43,13 +42,13 @@ function getPipsData(mode: string) {
         pipState.cols = parseInt(cols);
     });
 
-    // Determining the droppable cells on the board
+    // Determines the droppable cells on the board
     cy.get('[class^="Board-module_droppable_"]')
         .children()
         .each(($el) => {
             const classes = [...$el[0].classList];
 
-            if (classes.includes("Board-module_hidden__DkSxz")) {
+            if (classes.includes('Board-module_hidden__DkSxz')) {
                 pipState.droppableCells.push(false);
             } else {
                 pipState.droppableCells.push(true); 
@@ -72,8 +71,17 @@ function getPipsData(mode: string) {
                 const constraintWrapper = $el.children()[1];
                 const constraint = constraintWrapper.children[0];
 
-                // "=" is implemented in a class whereas the other constraints are in element contained text
-                pipStateText += "_" + (constraint.textContent ? constraint.textContent : "=");
+                if (constraint.textContent) {
+                    pipStateText += '_' + constraint.textContent;
+                } else {
+                    const classes = [...constraint.children[0].classList];
+
+                    if (classes.some(item => /notEqual/.test(item))) {
+                        pipStateText += '_' + '/=';
+                    }  else {
+                        pipStateText += '_' + '=';
+                    }
+                }
 
                 pipState.cellRelations.push(pipStateText);  
             }
@@ -86,11 +94,12 @@ describe('scraper', () => {
     it('scrapes pips game data', () => {
         cy.visit('https://www.nytimes.com/games/pips');
 
+        // Return to menu
         cy.get('[data-testid="play-button"]').click();
         cy.get('[data-testid="modal-close"]').click();
-
         cy.get('[data-testid="back-button"]').click();
 
+        // Iterate through difficulties and gather data
         getPipsData('easy');
 
         cy.get('[data-testid="back-button"]').click();
