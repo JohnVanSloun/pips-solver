@@ -81,5 +81,9 @@ describe('scraper', () => {
                     pipState.cellRelations.push(pipStateText);  
                 }
             });
+
+            cy.get('body').then($el => {
+                console.log(pipState);
+            })
     });
 });
