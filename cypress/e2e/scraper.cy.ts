@@ -12,8 +12,22 @@ const pipState: PipState = {
     cellRelations: []
 };
 
-const COLOR_PATTERNS = [/purple/, /pink/, /orange/, /teal/];
-const COLORS = ['PURPLE', 'PINK', 'ORANGE', 'TEAL'];
+function getCellColor(elem: JQuery<HTMLElement>): string {
+    const COLOR_PATTERNS = [/purple/, /pink/, /orange/, /teal/, /blue/, /green/];
+    const COLORS = ['PURPLE', 'PINK', 'ORANGE', 'TEAL', "BLUE", "GREEN"]; 
+
+
+    const child = elem.children()[0];
+    const classes = [...child.classList];
+    
+    for (let i = 0; i < COLOR_PATTERNS.length; i++) {
+        if (classes.some(item => COLOR_PATTERNS[i].test(item))) {
+            return COLORS[i];
+        }
+    } 
+
+    return "NONE";
+}
 
 describe('scraper', () => {
     it('scrapes pips game data', () => {
@@ -45,40 +59,31 @@ describe('scraper', () => {
                 }
             });
 
-        // Determining the relationships of cells
+        // Gethers cell colors and constraints to determine relationships
         cy.get('[class^="Board-module_regions_"]')
             .children()
             .each(($el) => {
                 if ($el.children().length == 0) {
                     pipState.cellRelations.push('NONE');
                 } else if ($el.children().length == 1) {
-                    const child = $el.children()[0];
-                    const classes = [...child.classList];
-                    
-                    for (let i = 0; i < COLOR_PATTERNS.length; i++) {
-                        if (classes.some(item => COLOR_PATTERNS[i].test(item))) {
-                            pipState.cellRelations.push(COLORS[i]); 
-                            break;
-                        }
-                    }
+                    pipState.cellRelations.push(getCellColor($el));
                 } else {
                     let pipStateText = "";
-                    const child1 = $el.children()[0];
-                    const classes = [...child1.classList];
 
-                    for (let i = 0; i < COLOR_PATTERNS.length; i++) {
-                        if (classes.some(item => COLOR_PATTERNS[i].test(item))) {
-                            pipStateText += COLORS[i];
-                            break;
-                        }
-                    }
+                    pipStateText += getCellColor($el);
 
-                    const child2 = $el.children()[1];
-                    const granchild = child2.children[0];
-                    pipStateText += "_" + granchild.textContent;
+                    const constraintWrapper = $el.children()[1];
+                    const constraint = constraintWrapper.children[0];
+
+                    // "=" is implemented in a class whereas the other constraints are in element contained text
+                    pipStateText += "_" + (constraint.textContent ? constraint.textContent : "=");
 
                     pipState.cellRelations.push(pipStateText);  
                 }
             });
+
+            cy.get('body').then($el => {
+                console.log(pipState);
+            })
     });
 });
