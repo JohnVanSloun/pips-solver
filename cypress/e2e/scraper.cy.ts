@@ -1,7 +1,7 @@
 interface PipState {
     rows: number,
     cols: number,
-    droppableCells: number[]
+    droppableCells: boolean[]
 };
 
 const pipState: PipState = {
@@ -34,9 +34,9 @@ describe('scraper', () => {
                 const classes = [...$el[0].classList];
 
                 if (classes.includes("Board-module_hidden__DkSxz")) {
-                    pipState.droppableCells.push(0);
+                    pipState.droppableCells.push(false);
                 } else {
-                    pipState.droppableCells.push(1); 
+                    pipState.droppableCells.push(true); 
                 }
             });
     });
