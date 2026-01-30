@@ -81,5 +81,7 @@ describe('scraper', () => {
                     pipState.cellRelations.push(pipStateText);  
                 }
             });
+
+        cy.writeFile('data/pips_easy.json', pipState);
     });
 });
