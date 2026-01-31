@@ -1,1 +1,3 @@
-console.log('hello world');
+import { runScraper } from './src/scraper.ts';
+
+runScraper();
