@@ -2,10 +2,10 @@
   "name": "pips-solver",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./index.js",
+    "start": "node ./index.ts",
     "cypress": "npx cypress open"
   },
   "repository": {
@@ -15,7 +15,7 @@
   "keywords": [],
   "author": "John Van Sloun",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/JohnVanSloun/pips-solver/issues"
   },
