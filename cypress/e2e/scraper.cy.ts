@@ -1,7 +1,8 @@
 interface PipState {
     rows: number,
     cols: number,
-    cells: string[]
+    cells: string[],
+    pieces: number[][]; 
 };
 
 function getCellColor(elem: JQuery<HTMLElement>): string {
@@ -79,11 +80,29 @@ function getCellRelationships(pipState: PipState): void {
         });
 }
 
-function getPipsData(mode: string) {
+// Gathers piece data
+function getPieces(pipState: PipState): void {
+    cy.get('[class^="Tray-module_tray__"]')
+        .children()
+        .each($el => {
+            const pieceData: number[] = [];
+
+            $el.find('[class^="Domino-module_halfDomino"]').each((index, $btn) => {
+                const numWrapper = $btn.children[0];
+                pieceData.push(numWrapper.children.length);
+            });
+
+            pipState.pieces.push(pieceData);
+        })
+}
+
+// Creates a game state object and populates its fields
+function getPipsData(mode: string): void {
     const pipState: PipState = {
         rows: 0,
         cols: 0,
-        cells: []
+        cells: [],
+        pieces: []
     };
 
     cy.get(`[data-testid="${mode.toUpperCase()}-toggle-button"]`).click();
@@ -92,7 +111,8 @@ function getPipsData(mode: string) {
     getBoardDimensions(pipState);
     getPlayableCells(pipState);
     getCellRelationships(pipState);
-    
+    getPieces(pipState);
+
     cy.writeFile(`data/pips_${mode}.json`, pipState);
 }
 
