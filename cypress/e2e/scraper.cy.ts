@@ -1,8 +1,7 @@
 interface PipState {
     rows: number,
     cols: number,
-    droppableCells: boolean[]
-    cellRelations: string[]
+    cells: string[]
 };
 
 function getCellColor(elem: JQuery<HTMLElement>): string {
@@ -25,8 +24,7 @@ function getPipsData(mode: string) {
     const pipState: PipState = {
         rows: 0,
         cols: 0,
-        droppableCells: [],
-        cellRelations: []
+        cells: []
     };
 
     cy.get(`[data-testid="${mode.toUpperCase()}-toggle-button"]`).click();
@@ -49,21 +47,19 @@ function getPipsData(mode: string) {
             const classes = [...$el[0].classList];
 
             if (classes.includes('Board-module_hidden__DkSxz')) {
-                pipState.droppableCells.push(false);
+                pipState.cells.push("INVALID");
             } else {
-                pipState.droppableCells.push(true); 
+                pipState.cells.push("VALID"); 
             }
         });
 
     // Gethers cell colors and constraints to determine relationships
     cy.get('[class^="Board-module_regions_"]')
         .children()
-        .each(($el) => {
-            if ($el.children().length == 0) {
-                pipState.cellRelations.push('NONE');
-            } else if ($el.children().length == 1) {
-                pipState.cellRelations.push(getCellColor($el));
-            } else {
+        .each(($el, index) => {
+            if ($el.children().length == 1) {
+                pipState.cells[index] += '_' + getCellColor($el);
+            } else if ($el.children().length == 2) {
                 let pipStateText = "";
 
                 pipStateText += getCellColor($el);
@@ -77,13 +73,13 @@ function getPipsData(mode: string) {
                     const classes = [...constraint.children[0].classList];
 
                     if (classes.some(item => /notEqual/.test(item))) {
-                        pipStateText += '_' + '/=';
+                        pipStateText += '_' + '!=';
                     }  else {
                         pipStateText += '_' + '=';
                     }
                 }
 
-                pipState.cellRelations.push(pipStateText);  
+                pipState.cells[index] += '_' + pipStateText;  
             }
         });
 
