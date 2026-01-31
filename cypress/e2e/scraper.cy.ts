@@ -20,17 +20,8 @@ function getCellColor(elem: JQuery<HTMLElement>): string {
     return "NONE";
 }
 
-function getPipsData(mode: string) {
-    const pipState: PipState = {
-        rows: 0,
-        cols: 0,
-        cells: []
-    };
-
-    cy.get(`[data-testid="${mode.toUpperCase()}-toggle-button"]`).click();
-    cy.get('[data-testid="play-button"]').click();
-
-     // Determines the dimensions of the game board
+// Determines the dimensions of the game board
+function getBoardDimensions(pipState: PipState): void {
     cy.get('[class^="Board-module_boardContainer_"]').then($el => {
         const style = window.getComputedStyle($el[0]);
         const rows = style.getPropertyValue('--rows');
@@ -39,8 +30,10 @@ function getPipsData(mode: string) {
         pipState.rows = parseInt(rows);
         pipState.cols = parseInt(cols);
     });
+}
 
-    // Determines the droppable cells on the board
+// Determines the droppable cells on the board
+function getPlayableCells(pipState: PipState): void {
     cy.get('[class^="Board-module_droppable_"]')
         .children()
         .each(($el) => {
@@ -52,8 +45,10 @@ function getPipsData(mode: string) {
                 pipState.cells.push("VALID"); 
             }
         });
+}
 
-    // Gethers cell colors and constraints to determine relationships
+// Gethers cell colors and constraints to determine relationships
+function getCellRelationships(pipState: PipState): void {
     cy.get('[class^="Board-module_regions_"]')
         .children()
         .each(($el, index) => {
@@ -82,7 +77,22 @@ function getPipsData(mode: string) {
                 pipState.cells[index] += '_' + pipStateText;  
             }
         });
+}
 
+function getPipsData(mode: string) {
+    const pipState: PipState = {
+        rows: 0,
+        cols: 0,
+        cells: []
+    };
+
+    cy.get(`[data-testid="${mode.toUpperCase()}-toggle-button"]`).click();
+    cy.get('[data-testid="play-button"]').click();
+
+    getBoardDimensions(pipState);
+    getPlayableCells(pipState);
+    getCellRelationships(pipState);
+    
     cy.writeFile(`data/pips_${mode}.json`, pipState);
 }
 
