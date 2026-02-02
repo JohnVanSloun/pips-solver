@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs'
 
+// Returns pipState data in JSON form from the specified file path
 export async function readPipState(path: string) {
     try {
         const data = readFileSync(path, 'utf-8');
@@ -10,40 +11,40 @@ export async function readPipState(path: string) {
     }
 }
 
+// Predicate that checks that an index is in range for an array
 function inRange(array: [], index: number) {
     return index >= 0 && index < array.length;
 }
 
+// Recursively propogates a constraint to all neighboring cells of the same color that is passed in as an arg
 function propogateConstraint(pipState, index: number, color: string, constraint: string, visited: Set<number>) {
-    if (pipState.cells[index].split("_").length < 2) {
+    const cellConstituents = pipState.cells[index].split("_");
+
+    if (cellConstituents.length < 2) {
+        // The cell is not a colored cell and thus should have no constraints
+        visited.add(index);
+
         return;
-    } else if (pipState.cells[index].split("_")[1] != color) {
+    } else if (cellConstituents[1] != color) {
         return;
     }
 
     visited.add(index);
 
-    if (pipState.cells[index].split("_").length < 3) {
+    if (cellConstituents.length < 3) {
         pipState.cells[index] += "_" + constraint
     }
 
-    if (inRange(pipState.cells, index - 1) && !visited.has(index - 1)) {
-        propogateConstraint(pipState, index - 1, color, constraint, visited);
-    }
+    const neighborCells = [index - 1, index + 1, index - pipState.cols, index + pipState.cols];
 
-    if (inRange(pipState.cells, index + 1) && !visited.has(index + 1)) {
-        propogateConstraint(pipState, index + 1, color, constraint, visited);
-    }
-
-    if (inRange(pipState.cells, index - pipState.cols) && !visited.has(index - pipState.cols)) {
-        propogateConstraint(pipState, index - pipState.cols, color, constraint, visited);
-    }
-
-    if (inRange(pipState.cells, index + pipState.cols) && !visited.has(index + pipState.cols)) {
-        propogateConstraint(pipState, index + pipState.cols, color, constraint, visited);
+    for (let i = 0; i < neighborCells.length; i++) {
+        if (inRange(pipState.cells, neighborCells[i]) && !visited.has(neighborCells[i])) {
+            propogateConstraint(pipState, neighborCells[i], color, constraint, visited);
+        }
     }
 }
 
+// Iterates over the pipState cells and initiates constrain propogation
 export function propogateConstraints(pipState) {
     const visited: Set<number> = new Set();
 
